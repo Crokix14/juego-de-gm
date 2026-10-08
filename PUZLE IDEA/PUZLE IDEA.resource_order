@@ -1,0 +1,20 @@
+{
+  "FolderOrderSettings":[
+    {"name":"objeto","order":1,"path":"folders/objeto.yy",},
+    {"name":"sprite","order":2,"path":"folders/sprite.yy",},
+  ],
+  "ResourceOrderSettings":[
+    {"name":"Obj_door","order":1,"path":"objects/Obj_door/Obj_door.yy",},
+    {"name":"Obj_key","order":2,"path":"objects/Obj_key/Obj_key.yy",},
+    {"name":"Obj_openclose","order":3,"path":"objects/Obj_openclose/Obj_openclose.yy",},
+    {"name":"Obj_pared","order":4,"path":"objects/Obj_pared/Obj_pared.yy",},
+    {"name":"Obj_player","order":5,"path":"objects/Obj_player/Obj_player.yy",},
+    {"name":"Obj_reja","order":6,"path":"objects/Obj_reja/Obj_reja.yy",},
+    {"name":"Spr_door","order":1,"path":"sprites/Spr_door/Spr_door.yy",},
+    {"name":"spr_key","order":2,"path":"sprites/spr_key/spr_key.yy",},
+    {"name":"Spr_openclose","order":3,"path":"sprites/Spr_openclose/Spr_openclose.yy",},
+    {"name":"Spr_pared","order":4,"path":"sprites/Spr_pared/Spr_pared.yy",},
+    {"name":"Spr_player","order":5,"path":"sprites/Spr_player/Spr_player.yy",},
+    {"name":"Spr_reja","order":6,"path":"sprites/Spr_reja/Spr_reja.yy",},
+  ],
+}
