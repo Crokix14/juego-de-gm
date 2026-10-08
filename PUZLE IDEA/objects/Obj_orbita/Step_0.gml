@@ -5,7 +5,7 @@ render_cy = lerp(render_cy, player_cy, min(1, dt * 22));
 if (keyboard_check_pressed(ord("T"))) original_art = !original_art;
 
 if (mode == "menu") {
-    for (var i = 0; i < array_length(levels); ++i) {
+    for (var i = 0; i < array_length(levels); i += 1) {
         if (keyboard_check_pressed(ord("1") + i)) load_level(i);
     }
     if (keyboard_check_pressed(vk_left) || keyboard_check_pressed(ord("A"))) load_level((level_index + 4) mod 5);

@@ -9,7 +9,7 @@ repeat_timer = 0;
 history = [];
 best = array_create(array_length(levels), 0);
 ini_open("orbita_progress.ini");
-for (var i = 0; i < array_length(best); ++i) {
+for (var i = 0; i < array_length(best); i += 1) {
     best[i] = max(0, ini_read_real("best", string(i), 0));
 }
 ini_close();
@@ -23,7 +23,7 @@ board_left = 440;
 board_top = 195;
 
 box_at = function(_cx, _cy) {
-    for (var i = 0; i < array_length(boxes); ++i) {
+    for (var i = 0; i < array_length(boxes); i += 1) {
         if (boxes[i].cx == _cx && boxes[i].cy == _cy) return i;
     }
     return -1;
@@ -34,14 +34,14 @@ is_wall = function(_cx, _cy) {
 };
 count_active = function() {
     var total = 0;
-    for (var i = 0; i < array_length(targets); ++i) {
-        if (box_at(targets[i].cx, targets[i].cy) >= 0) ++total;
+    for (var i = 0; i < array_length(targets); i += 1) {
+        if (box_at(targets[i].cx, targets[i].cy) >= 0) total += 1;
     }
     return total;
 };
 copy_boxes = function() {
     var result = [];
-    for (var i = 0; i < array_length(boxes); ++i) {
+    for (var i = 0; i < array_length(boxes); i += 1) {
         array_push(result, {cx: boxes[i].cx, cy: boxes[i].cy});
     }
     return result;
@@ -57,8 +57,8 @@ load_level = function(_index) {
     moves = 0;
     history = [];
     repeat_timer = 0;
-    for (var cy = 0; cy < grid_height; ++cy) {
-        for (var cx = 0; cx < grid_width; ++cx) {
+    for (var cy = 0; cy < grid_height; cy += 1) {
+        for (var cx = 0; cx < grid_width; cx += 1) {
             switch (string_char_at(rows[cy], cx + 1)) {
                 case "P": player_cx = cx; player_cy = cy; break;
                 case "B": array_push(boxes, {cx: cx, cy: cy}); break;
@@ -99,7 +99,7 @@ try_move = function(_dx, _dy) {
     }
     player_cx = nx;
     player_cy = ny;
-    ++moves;
+    moves += 1;
     message = box >= 0 ? "Caja movida." : "Encuentra tu camino.";
     if (!has_key && nx == key_cx && ny == key_cy) {
         has_key = true;

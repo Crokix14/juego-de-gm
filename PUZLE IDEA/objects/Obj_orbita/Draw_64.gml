@@ -30,8 +30,8 @@ draw_text(440, 145, "Movimientos: " + string(moves));
 draw_set_colour(muted);
 draw_text(710, 145, "Mejor: " + (best[level_index] > 0 ? string(best[level_index]) : "--"));
 
-for (var cy = 0; cy < grid_height; ++cy) {
-    for (var cx = 0; cx < grid_width; ++cx) {
+for (var cy = 0; cy < grid_height; cy += 1) {
+    for (var cx = 0; cx < grid_width; cx += 1) {
         var px = board_left + cx * tile_size;
         var py = board_top + cy * tile_size;
         draw_set_colour(is_wall(cx, cy) ? make_color_rgb(52, 69, 67) : make_color_rgb(29, 43, 42));
@@ -39,7 +39,7 @@ for (var cy = 0; cy < grid_height; ++cy) {
         if (is_wall(cx, cy) && original_art) draw_asset(Spr_pared, 0, px + 2, py + 2, 48, c_white);
     }
 }
-for (var i = 0; i < array_length(targets); ++i) {
+for (var i = 0; i < array_length(targets); i += 1) {
     var px = board_left + targets[i].cx * tile_size;
     var py = board_top + targets[i].cy * tile_size;
     var active = box_at(targets[i].cx, targets[i].cy) >= 0;
@@ -65,11 +65,11 @@ if (!has_key) {
     draw_line_width(px + 36, py + 36, px + 42, py + 30, 3);
     if (original_art) draw_asset(spr_key, 0, px + 5, py + 5, 42, c_white);
 }
-for (var i = 0; i < array_length(boxes); ++i) {
+for (var i = 0; i < array_length(boxes); i += 1) {
     var px = board_left + boxes[i].cx * tile_size;
     var py = board_top + boxes[i].cy * tile_size;
     var active = false;
-    for (var j = 0; j < array_length(targets); ++j) {
+    for (var j = 0; j < array_length(targets); j += 1) {
         if (targets[j].cx == boxes[i].cx && targets[j].cy == boxes[i].cy) active = true;
     }
     draw_set_colour(active ? mint : make_color_rgb(174, 128, 86));
@@ -118,7 +118,7 @@ if (mode != "play") {
     if (mode == "menu") {
         draw_text(550, 270, "Cinco camaras. Una llave. Tu ingenio.");
         draw_text(550, 330, "Selecciona con 1-5 o flechas izquierda / derecha");
-        for (var i = 0; i < array_length(levels); ++i) {
+        for (var i = 0; i < array_length(levels); i += 1) {
             draw_set_colour(i == level_index ? mint : muted);
             draw_text(550, 385 + i * 37, string(i + 1) + ". " + levels[i].name + (best[i] > 0 ? "   [" + string(best[i]) + " movimientos]" : ""));
         }
