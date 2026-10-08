@@ -5,11 +5,11 @@ render_cy = lerp(render_cy, player_cy, min(1, dt * 22));
 if (keyboard_check_pressed(ord("T"))) original_art = !original_art;
 
 if (mode == "menu") {
-    for (var i = 0; i < array_length(levels); i += 1) {
+    for (var i = 0; i < min(9, array_length(levels)); i += 1) {
         if (keyboard_check_pressed(ord("1") + i)) load_level(i);
     }
-    if (keyboard_check_pressed(vk_left) || keyboard_check_pressed(ord("A"))) load_level((level_index + 4) mod 5);
-    if (keyboard_check_pressed(vk_right) || keyboard_check_pressed(ord("D"))) load_level((level_index + 1) mod 5);
+    if (keyboard_check_pressed(vk_left) || keyboard_check_pressed(ord("A"))) load_level((level_index + array_length(levels) - 1) mod array_length(levels));
+    if (keyboard_check_pressed(vk_right) || keyboard_check_pressed(ord("D"))) load_level((level_index + 1) mod array_length(levels));
     if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_space)) mode = "play";
     exit;
 }
@@ -26,6 +26,7 @@ if (mode == "pause") {
 }
 if (keyboard_check_pressed(ord("Z"))) { undo_move(); exit; }
 if (keyboard_check_pressed(ord("R"))) { load_level(level_index); mode = "play"; exit; }
+if (mode == "dead") exit;
 if (mode == "win") {
     if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_space)) {
         if (level_index < array_length(levels) - 1) { load_level(level_index + 1); mode = "play"; }
@@ -48,4 +49,9 @@ if (pressed || repeat_timer <= 0) {
         try_move(dx, dy);
         repeat_timer = pressed ? 0.2 : 0.12;
     }
+}
+
+if (mode == "play") {
+    if (keyboard_check_pressed(vk_space)) attack();
+    tick_combat(dt);
 }
