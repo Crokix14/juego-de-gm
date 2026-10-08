@@ -16,7 +16,7 @@ draw_set_colour(mint);
 draw_text(48, 230, "salida.");
 draw_set_font(font_body);
 draw_set_colour(muted);
-draw_text_ext(48, 305, "Empuja las cajas sobre los interruptores, recoge la llave y encuentra la puerta.", 25, 330);
+draw_text_ext(48, 305, "Coloca las cajas en las X para abrir las rejas. Busca la llave y llega a la puerta.", 25, 330);
 draw_set_colour(mint);
 draw_text(48, 420, "CAMARA " + string(level_index + 1) + " / 5");
 draw_set_colour(c_white);
@@ -34,9 +34,10 @@ for (var cy = 0; cy < grid_height; cy += 1) {
     for (var cx = 0; cx < grid_width; cx += 1) {
         var px = board_left + cx * tile_size;
         var py = board_top + cy * tile_size;
-        draw_set_colour(is_wall(cx, cy) ? make_color_rgb(52, 69, 67) : make_color_rgb(29, 43, 42));
+        var cell = string_char_at(levels[level_index].map[cy], cx + 1);
+        draw_set_colour(cell == "#" ? make_color_rgb(52, 69, 67) : make_color_rgb(29, 43, 42));
         draw_roundrect(px + 2, py + 2, px + 50, py + 50, false);
-        if (is_wall(cx, cy) && original_art) draw_asset(Spr_pared, 0, px + 2, py + 2, 48, c_white);
+        if (cell == "#" && original_art) draw_asset(Spr_pared, 0, px + 2, py + 2, 48, c_white);
     }
 }
 for (var i = 0; i < array_length(targets); i += 1) {
@@ -45,10 +46,26 @@ for (var i = 0; i < array_length(targets); i += 1) {
     var active = box_at(targets[i].cx, targets[i].cy) >= 0;
     draw_set_colour(active ? mint : muted);
     draw_circle(px + 26, py + 26, 16, true);
-    draw_circle(px + 26, py + 26, 4, false);
-    if (original_art) draw_asset(Spr_openclose, active ? 1 : 0, px + 5, py + 5, 42, c_white);
+    draw_line_width(px + 16, py + 16, px + 36, py + 36, 3);
+    draw_line_width(px + 36, py + 16, px + 16, py + 36, 3);
+
 }
-var ready = has_key && count_active() == array_length(targets);
+// Closed bars block movement; open bars leave a visible frame.
+var gate_open = count_active() == array_length(targets);
+for (var gy = 0; gy < grid_height; gy += 1) {
+    for (var gx = 0; gx < grid_width; gx += 1) {
+        if (string_char_at(levels[level_index].map[gy], gx + 1) != "G") continue;
+        var px = board_left + gx * tile_size;
+        var py = board_top + gy * tile_size;
+        draw_set_colour(gate_open ? mint : muted);
+        draw_rectangle(px + 3, py + 3, px + 49, py + 49, true);
+        if (!gate_open) {
+            if (original_art) draw_asset(Spr_reja, 0, px + 2, py + 2, 48, c_white);
+            else for (var bar = 12; bar <= 42; bar += 10) draw_line_width(px + bar, py + 5, px + bar, py + 47, 3);
+        }
+    }
+}
+var ready = has_key;
 var door_px = board_left + exit_cx * tile_size;
 var door_py = board_top + exit_cy * tile_size;
 draw_set_colour(ready ? mint : muted);
@@ -94,7 +111,7 @@ else {
 }
 draw_set_font(font_small);
 draw_set_colour(muted);
-draw_text(48, 686, "LLAVE: " + (has_key ? "SI" : "NO") + "    INTERRUPTORES: " + string(count_active()) + "/" + string(array_length(targets)));
+draw_text(48, 686, "LLAVE: " + (has_key ? "SI" : "NO") + "    X ACTIVAS: " + string(count_active()) + "/" + string(array_length(targets)));
 draw_set_font(font_body);
 draw_set_colour(c_white);
 draw_text(48, 719, message);

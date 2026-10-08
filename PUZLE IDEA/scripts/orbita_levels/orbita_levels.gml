@@ -1,69 +1,73 @@
-/// Five chambers shared with the browser edition.
+/// G = reja; T = X activada por una caja.
 function orbita_levels() {
     return [
     {
-        name: "El primer paso",
-        tip: "Recoge la llave dorada antes de llegar a la puerta.",
-        map: [
-            "#########",
-            "#.......#",
-            "#.P...K.#",
-            "#..###..#",
-            "#.....E.#",
-            "#########"
-        ]
-    },
-    {
-        name: "Un poco de presión",
-        tip: "Empuja la caja hasta el círculo verde. Las cajas se empujan, nunca se arrastran.",
-        map: [
-            "#########",
-            "#.......#",
-            "#.PB.T..#",
-            "#..###..#",
-            "#.K...E.#",
-            "#########"
-        ]
-    },
-    {
-        name: "Dos a la vez",
-        tip: "Todos los interruptores deben tener una caja al mismo tiempo.",
-        map: [
-            "##########",
-            "#........#",
-            "#.PB..T..#",
-            "#........#",
-            "#..B..T..#",
-            "#.K....E.#",
-            "##########"
-        ]
-    },
-    {
-        name: "Cambio de dirección",
-        tip: "Busca espacio para ponerte detrás de la caja. Deshacer también recupera la llave.",
-        map: [
-            "#########",
-            "#...K...#",
-            "#..T....#",
-            "#.......#",
-            "#..B.#..#",
-            "#.P..#.E#",
-            "#.......#",
-            "#########"
-        ]
-    },
-    {
-        name: "La última cámara",
-        tip: "Planea las dos rutas. Si una caja llega a una esquina, puedes deshacer sin límite.",
+        name: "La caja y la X",
+        tip: "Empuja la caja a la X para abrir la reja y alcanzar la llave.",
         map: [
             "###########",
-            "#....#....#",
-            "#.T..#..T.#",
-            "#.........#",
-            "#.B.....B.#",
-            "#....#....#",
-            "#.P.K#..E.#",
-            "#.........#",
+            "#.....#...#",
+            "#.PB.T#.K.#",
+            "#.....G...#",
+            "#.....#...#",
+            "#.....#.E.#",
+            "###########"
+        ]
+    },
+    {
+        name: "Cambio de direccion",
+        tip: "Ponte debajo de la caja y empujala hacia la X.",
+        map: [
+            "###########",
+            "#.....#...#",
+            "#..T..#.K.#",
+            "#.....G...#",
+            "#..B..#...#",
+            "#.P...#.E.#",
+            "#.....#...#",
+            "###########"
+        ]
+    },
+    {
+        name: "Dos cerraduras",
+        tip: "Las dos X deben tener una caja para abrir la reja.",
+        map: [
+            "###########",
+            "#.....#...#",
+            "#.B.T.#.K.#",
+            "#.P...G...#",
+            "#.B.T.#...#",
+            "#.....#.E.#",
+            "###########"
+        ]
+    },
+    {
+        name: "El rodeo",
+        tip: "Rodea el muro para empujar la caja desde abajo.",
+        map: [
+            "###########",
+            "#.....#...#",
+            "#...T.#.K.#",
+            "#.....G...#",
+            "#.#.B.#...#",
+            "#.#...#...#",
+            "#.P...#.E.#",
+            "#.....#...#",
+            "###########"
+        ]
+    },
+    {
+        name: "La ultima reja",
+        tip: "Activa ambas X. Puedes deshacer si una caja queda atrapada.",
+        map: [
+            "###########",
+            "#.....#...#",
+            "#.T.T.#.K.#",
+            "#.....G...#",
+            "#.B.B.#...#",
+            "#..P..#...#",
+            "#.....#.E.#",
+            "#.....#...#",
             "###########"
         ]
     }

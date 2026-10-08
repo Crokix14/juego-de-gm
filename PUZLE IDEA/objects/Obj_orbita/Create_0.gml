@@ -30,7 +30,8 @@ box_at = function(_cx, _cy) {
 };
 is_wall = function(_cx, _cy) {
     if (_cx < 0 || _cy < 0 || _cx >= grid_width || _cy >= grid_height) return true;
-    return string_char_at(levels[level_index].map[_cy], _cx + 1) == "#";
+    var cell = string_char_at(levels[level_index].map[_cy], _cx + 1);
+    return cell == "#" || (cell == "G" && count_active() < array_length(targets));
 };
 count_active = function() {
     var total = 0;
@@ -70,7 +71,7 @@ load_level = function(_index) {
     }
     render_cx = player_cx;
     render_cy = player_cy;
-    message = "Recoge la llave y abre la salida.";
+    message = "Caja en la X -> reja abierta -> llave -> puerta.";
 };
 undo_move = function() {
     if (array_length(history) == 0) return;
@@ -106,7 +107,7 @@ try_move = function(_dx, _dy) {
         message = "Llave recogida.";
     }
     if (nx == exit_cx && ny == exit_cy) {
-        if (has_key && count_active() == array_length(targets)) {
+        if (has_key) {
             mode = "win";
             if (best[level_index] == 0 || moves < best[level_index]) {
                 best[level_index] = moves;
@@ -115,7 +116,7 @@ try_move = function(_dx, _dy) {
                 ini_close();
             }
         } else {
-            message = has_key ? "Activa todos los interruptores." : "Necesitas la llave.";
+            message = "Necesitas la llave que esta detras de la reja.";
         }
     }
 };
