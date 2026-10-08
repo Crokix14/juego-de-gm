@@ -29,6 +29,8 @@ boss_enraged_warn_duration = 0.5;
 boss_strike_duration = 0.45;
 boss_recover_duration = 1.0;
 
+// Eight sword frames at 30 FPS, restarted by each accepted attack.
+slash_duration = sprite_get_number(espadaefecto) / 30;
 boss_move_interval = 0.28;
 boss_chase_duration = 1.4;
 boss_melee_warn_duration = 0.4;
@@ -188,7 +190,7 @@ attack = function() {
     if (!has_sword) { message = "Necesitas encontrar la espada azul."; return; }
     if (attack_cooldown > 0) return;
     attack_cooldown = 0.38;
-    slash_timer = 0.16;
+    slash_timer = slash_duration;
     message = "Golpe de espada.";
     for (var i = 0; i < array_length(enemies); i += 1) {
         if (enemies[i].hp > 0 && abs(enemies[i].cx - player_cx) + abs(enemies[i].cy - player_cy) <= 1) {

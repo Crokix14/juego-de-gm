@@ -29,10 +29,14 @@ draw_set_colour(c_white);
 draw_text(440, 144, "Movimientos: " + string(moves));
 draw_set_colour(muted);
 draw_text(730, 144, "Mejor: " + (best[level_index] > 0 ? string(best[level_index]) : "--"));
+// HUD in GUI coordinates: lives followed by the key in the top-right corner.
 for (var i = 0; i < 5; i += 1) {
-    draw_set_colour(i < hp ? make_color_rgb(238, 112, 118) : make_color_rgb(60, 65, 65));
-    draw_circle(63 + i * 32, 595, 9, false);
+    draw_set_alpha(i < hp ? 1 : 0.22);
+    draw_asset(vida, 0, 790 + i * 36, 42, 32, c_white);
 }
+draw_set_alpha(has_key ? 1 : 0.22);
+draw_asset(spr_key, 0, 982, 42, 32, c_white);
+draw_set_alpha(1);
 draw_set_font(font_small);
 draw_set_colour(has_sword ? make_color_rgb(115, 203, 250) : muted);
 draw_text(48, 624, has_sword ? "ESPADA LISTA - ESPACIO PARA ATACAR" : "BUSCA LA ESPADA AZUL");
@@ -115,8 +119,10 @@ for (var diagonal = 0; diagonal < grid_width + grid_height - 1; diagonal += 1) {
                 draw_rectangle(player_px-7,player_py-22,player_px+7,player_py-15,false);
             }
             if (slash_timer > 0) {
-                draw_set_colour(make_color_rgb(115,203,250));
-                draw_ellipse(player_px-28,player_py-23,player_px+28,player_py+5,true);
+                var slash_count = sprite_get_number(espadaefecto);
+                var slash_frame = clamp(floor((1 - slash_timer / slash_duration) * slash_count), 0, slash_count - 1);
+                // Center the entire effect on the player's body, regardless of sprite origin.
+                draw_asset(espadaefecto, slash_frame, player_px - 32, player_py - 46, 64, c_white);
             }
         }
     }
