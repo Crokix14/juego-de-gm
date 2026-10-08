@@ -1,9 +1,9 @@
 // One controller owns the puzzle state; the room contains no duplicate actors.
 display_set_gui_size(1100, 820);
-window_set_caption("Orbita - Laboratorio de puzles");
+window_set_caption("Orbita - Laboratorio del Custodio");
 levels = orbita_levels();
 level_index = 0;
-mode = "menu";
+mode = "play";
 original_art = true;
 repeat_timer = 0;
 history = [];
@@ -22,6 +22,28 @@ tile_size = 52;
 boss_names = ["Cruz de acero", "Anillo interior", "Columna marcada", "Fila marcada", "Barrido izquierdo", "Barrido derecho", "Suelo alterno", "Invocacion", "Onda expansiva", "Impacto dirigido"];
 board_left = 440;
 board_top = 195;
+
+// Tiempos en segundos: ajusta estos valores para experimentar con el jefe.
+boss_warn_duration = 0.75;
+boss_enraged_warn_duration = 0.5;
+boss_strike_duration = 0.45;
+boss_recover_duration = 1.0;
+
+boss_move_interval = 0.28;
+boss_chase_duration = 1.4;
+boss_melee_warn_duration = 0.4;
+iso_half_width = 24;
+iso_half_height = 12;
+iso_origin_x = 730;
+iso_origin_y = 235;
+iso_x = function(_cx, _cy) { return iso_origin_x + (_cx - _cy) * iso_half_width; };
+iso_y = function(_cx, _cy) { return iso_origin_y + (_cx + _cy) * iso_half_height; };
+iso_tile = function(_px, _py, _lift, _outline) {
+    draw_triangle(_px - iso_half_width, _py - _lift, _px, _py - iso_half_height - _lift,
+        _px + iso_half_width, _py - _lift, _outline);
+    draw_triangle(_px - iso_half_width, _py - _lift, _px, _py + iso_half_height - _lift,
+        _px + iso_half_width, _py - _lift, _outline);
+};
 
 box_at = function(_cx, _cy) {
     for (var i = 0; i < array_length(boxes); i += 1) {
@@ -62,13 +84,14 @@ load_level = function(_index) {
     tile_size = min(52, min(580 / grid_width, 480 / grid_height));
     hp = 5; invulnerable = 0; world_time = 0;
     attack_cooldown = 0; slash_timer = 0;
-    has_sword = level_index >= 15;
+    has_sword = true;
     sword_cx = -1; sword_cy = -1;
     key_cx = -1; key_cy = -1;
     enemies = []; traps = []; enemy_timer = 0.9; enemy_axis = 0;
     boss_alive = false; boss_hp = 100; boss_cx = -1; boss_cy = -1;
-    boss_stage = "warn"; boss_pattern = 0; boss_timer = 1.5;
+    boss_stage = "warn"; boss_pattern = 0; boss_timer = boss_warn_duration;
     boss_cells = []; boss_hit_in_window = false;
+    boss_melee = false; boss_move_timer = 0; boss_chase_timer = boss_chase_duration;
     for (var cy = 0; cy < grid_height; cy += 1) {
         for (var cx = 0; cx < grid_width; cx += 1) {
             switch (string_char_at(rows[cy], cx + 1)) {
@@ -85,10 +108,10 @@ load_level = function(_index) {
             }
         }
     }
-    if (boss_alive) start_boss_warning();
+    if (boss_alive) boss_stage = "chase";
     render_cx = player_cx;
     render_cy = player_cy;
-    message = "Caja en la X -> reja abierta -> llave -> puerta.";
+    message = "Esquiva los ataques y golpea con ESPACIO durante la recuperacion. R: reiniciar.";
 };
 undo_move = function() {
     if (boss_alive || mode == "dead") { message = "En combate con el jefe no puedes deshacer."; return; }
@@ -128,7 +151,7 @@ try_move = function(_dx, _dy) {
         message = "Llave recogida.";
     }
     if (nx == exit_cx && ny == exit_cy) {
-        if (has_key && !boss_alive && (level_index < 14 || has_sword)) {
+        if (has_key && !boss_alive && has_sword) {
             mode = "win";
             if (best[level_index] == 0 || moves < best[level_index]) {
                 best[level_index] = moves;
@@ -189,6 +212,10 @@ attack = function() {
 };
 build_boss_cells = function() {
     boss_cells = [];
+    if (boss_melee) {
+        array_push(boss_cells, {cx: boss_aim_cx, cy: boss_aim_cy});
+        return;
+    }
     for (var cy = 1; cy < grid_height - 1; cy += 1) {
         for (var cx = 1; cx < grid_width - 1; cx += 1) {
             if (is_wall(cx, cy) || (cx == boss_cx && cy == boss_cy)) continue;
@@ -204,7 +231,7 @@ build_boss_cells = function() {
                 case 6: marked = (cx + cy) mod 2 == boss_parity; break;
                 case 7: marked = (cx == 2 && cy == 2) || (cx == grid_width - 3 && cy == grid_height - 3); break;
                 case 8:
-                    var radius = 1 + floor((0.9 - boss_timer) / 0.3);
+                    var radius = 1 + floor((boss_strike_duration - boss_timer) / (boss_strike_duration / 3));
                     marked = boss_stage == "warn" ? (dist >= 1 && dist <= 3) : dist == clamp(radius, 1, 3);
                     break;
                 case 9: marked = abs(cx - boss_aim_cx) <= 1 && abs(cy - boss_aim_cy) <= 1; break;
@@ -214,12 +241,46 @@ build_boss_cells = function() {
     }
 };
 start_boss_warning = function() {
+    boss_melee = false;
     boss_stage = "warn";
-    boss_timer = boss_hp <= 40 ? 1.15 : 1.5;
+    boss_timer = boss_hp <= 40 ? boss_enraged_warn_duration : boss_warn_duration;
     boss_aim_cx = player_cx; boss_aim_cy = player_cy;
     boss_parity = (player_cx + player_cy) mod 2;
     boss_hit_in_window = false;
     build_boss_cells();
+};
+// Breadth-first pursuit routes around walls, boxes and living guards.
+move_boss = function() {
+    var queue = [{cx: boss_cx, cy: boss_cy, first_cx: boss_cx, first_cy: boss_cy}];
+    var seen = array_create(grid_width * grid_height, false);
+    seen[boss_cy * grid_width + boss_cx] = true;
+    var directions = [{cx: 1, cy: 0}, {cx: -1, cy: 0}, {cx: 0, cy: 1}, {cx: 0, cy: -1}];
+    for (var head = 0; head < array_length(queue); head += 1) {
+        var node = queue[head];
+        if (abs(node.cx - player_cx) + abs(node.cy - player_cy) == 1) {
+            boss_cx = node.first_cx; boss_cy = node.first_cy;
+            return;
+        }
+        for (var d = 0; d < 4; d += 1) {
+            var nx = node.cx + directions[d].cx; var ny = node.cy + directions[d].cy;
+            if (is_wall(nx, ny) || box_at(nx, ny) >= 0 || enemy_at(nx, ny) >= 0) continue;
+            if (nx == player_cx && ny == player_cy) continue;
+            var index = ny * grid_width + nx;
+            if (seen[index]) continue;
+            seen[index] = true;
+            array_push(queue, {cx: nx, cy: ny,
+                first_cx: head == 0 ? nx : node.first_cx,
+                first_cy: head == 0 ? ny : node.first_cy});
+        }
+    }
+};
+start_boss_melee = function() {
+    boss_melee = true; boss_stage = "warn";
+    boss_timer = boss_melee_warn_duration;
+    boss_aim_cx = player_cx; boss_aim_cy = player_cy;
+    boss_hit_in_window = false;
+    build_boss_cells();
+    message = "Golpe cercano anunciado. Sal de la casilla amarilla.";
 };
 spawn_guard = function(_cx, _cy) {
     if (is_wall(_cx, _cy) || box_at(_cx, _cy) >= 0 || actor_blocks(_cx, _cy)) return;
@@ -256,24 +317,40 @@ tick_combat = function(_dt) {
         if (traps[i].cx == player_cx && traps[i].cy == player_cy && trap_danger(traps[i].kind)) hurt_player(1);
     }
     if (!boss_alive || mode != "play") return;
+    if (boss_stage == "chase") {
+        boss_chase_timer -= _dt;
+        boss_move_timer -= _dt;
+        if (boss_move_timer <= 0) {
+            move_boss();
+            boss_move_timer = boss_move_interval;
+        }
+        if (abs(boss_cx - player_cx) + abs(boss_cy - player_cy) == 1) start_boss_melee();
+        else if (boss_chase_timer <= 0) start_boss_warning();
+        return;
+    }
     boss_timer -= _dt;
     if (boss_timer <= 0) {
         if (boss_stage == "warn") {
             boss_stage = "strike";
-            boss_timer = 0.9;
-            if (boss_pattern == 7) {
+            boss_timer = boss_strike_duration;
+            if (!boss_melee && boss_pattern == 7) {
                 var alive_guards = 0;
                 for (var i = 0; i < array_length(enemies); i += 1) if (enemies[i].hp > 0) alive_guards += 1;
                 if (alive_guards < 4) { spawn_guard(2, 2); spawn_guard(grid_width - 3, grid_height - 3); }
             }
         } else if (boss_stage == "strike") {
             boss_stage = "recover";
-            boss_timer = 2.0;
+            boss_timer = boss_recover_duration;
             boss_cells = [];
             message = "Escudo apagado. Acercate y golpea al jefe.";
         } else {
-            boss_pattern = (boss_pattern + 1) mod 10;
-            start_boss_warning();
+            if (boss_melee) {
+                start_boss_warning();
+            } else {
+                boss_pattern = (boss_pattern + 1) mod 10;
+                boss_stage = "chase"; boss_melee = false;
+                boss_cells = []; boss_move_timer = 0; boss_chase_timer = boss_chase_duration;
+            }
         }
     }
     if (boss_stage != "recover") build_boss_cells();
