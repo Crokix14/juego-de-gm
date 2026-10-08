@@ -51,7 +51,13 @@ for (var i = 0; i < array_length(traps); i += 1) {
     var px = board_left + traps[i].cx * ts; var py = board_top + traps[i].cy * ts;
     var danger = trap_danger(traps[i].kind);
     var warning = traps[i].kind == "H" && (world_time mod 2.8) >= 1.5 && !danger;
-    draw_set_colour(danger ? make_color_rgb(235, 91, 104) : warning ? make_color_rgb(239, 204, 113) : make_color_rgb(91, 116, 119));
+    var trap_colour = make_color_rgb(91, 116, 119);
+    if (danger) {
+        trap_colour = make_color_rgb(235, 91, 104);
+    } else if (warning) {
+        trap_colour = make_color_rgb(239, 204, 113);
+    }
+    draw_set_colour(trap_colour);
     for (var tooth = 0; tooth < 3; tooth += 1) {
         var tx = px + ts * (0.18 + tooth * 0.24);
         draw_triangle(tx, py + ts * 0.75, tx + ts * 0.1, py + ts * 0.28, tx + ts * 0.2, py + ts * 0.75, !danger);
