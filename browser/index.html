@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Órbita · Cámara de puzles</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header><a class="brand" href="./">◈ ÓRBITA<span>LABORATORIO DE PUZLES</span></a><button id="sound" aria-pressed="false">Sonido: apagado</button></header>
+  <main>
+    <section class="intro"><div class="eyebrow">UNA LLAVE. UN CAMINO. TU INGENIO.</div><h1>Abre tu propia <br><em>salida.</em></h1><p>Empuja las cajas sobre los interruptores, recoge la llave y encuentra la puerta. Cada cámara tiene su truco.</p><div class="legend"><span><i class="key">◆</i> Llave</span><span><i class="box">▣</i> Caja</span><span><i class="plate">◎</i> Interruptor</span></div><div id="progress" class="progress" aria-label="Progreso de cámaras"></div><div class="tip"><span>CONSEJO DE LA CÁMARA</span><p id="tip"></p></div></section>
+    <section class="game-panel" aria-label="Juego de puzles"><div class="panel-head"><div><span id="level-number" class="eyebrow"></span><h2 id="level-title"></h2></div><div class="counter"><b id="moves">0</b><span>MOVIMIENTOS</span></div></div><div class="board-wrap"><canvas id="board" width="720" height="600" tabindex="0" aria-label="Tablero. Usa las flechas o WASD para moverte."></canvas><div id="overlay" class="overlay" hidden><div class="win-card"><span class="eyebrow">SALIDA ENCONTRADA</span><h2 id="win-title">Cámara superada</h2><p id="win-detail"></p><button id="next" class="primary">Siguiente cámara →</button></div></div></div><div id="status" class="status" role="status" aria-live="polite"></div><div class="toolbar"><span>↑ ↓ ← → <small>o WASD</small></span><div><button id="undo">↶ Deshacer</button><button id="restart">↻ Reiniciar</button></div></div><div class="touch" aria-label="Controles táctiles"><button data-dir="0,-1" aria-label="Arriba">↑</button><div><button data-dir="-1,0" aria-label="Izquierda">←</button><button data-dir="0,1" aria-label="Abajo">↓</button><button data-dir="1,0" aria-label="Derecha">→</button></div></div></section>
+  </main><footer>HECHO PARA CURIOSOS <span>5 cámaras · Sin prisa · Sin vidas que perder</span></footer>
+  <script src="engine.js"></script><script src="game.js"></script>
+</body></html>
